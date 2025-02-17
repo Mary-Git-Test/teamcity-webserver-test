@@ -13,6 +13,7 @@ public class Config {
     private Config() {
         properties = new Properties();
     loadProperties(CONFIG_PROPERTIES);
+
     }
 
     public static Config getConfig() {
