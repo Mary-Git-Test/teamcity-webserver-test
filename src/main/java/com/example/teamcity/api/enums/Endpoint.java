@@ -12,7 +12,7 @@ import lombok.Getter;
 public enum Endpoint
 {BUILD_TYPES("/app/rest/buildTypes", BuildType.class),
     USERS("/app/rest/users", User.class),
-    PROEJCT("/app/rest/projects", Project .class);
+    PROJECTS("/app/rest/projects", Project .class);
 
 
     private final String url;

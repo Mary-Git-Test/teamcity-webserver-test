@@ -1,6 +1,6 @@
 package com.example.teamcity.api;
 
-import com.example.teamcity.BaseTest;
 
-public class BaseApiTest extends BaseTest {
+
+public class BaseApiTest extends com.example.teamcity.api.BaseTest {
 }
