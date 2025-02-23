@@ -24,84 +24,35 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
     public void userCreatesBuildTypeTest() {
-        var user = generate (User.class);
-        step("Create user", () ->  {
-           var requester = new CheckedBase<User>(Specifications.superUserSpec(), USERS);
-            //var user = User.builder()
-                   // .username(RandomData.getString())
-                    //.password(RandomData.getString())
-                //    .build();
+        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
 
-            requester.create(user);
-        });
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
 
+        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
 
-        var project = generate(Project.class);
-        AtomicReference<String> projectId = new AtomicReference<>("");
-
-        step("Create project by user", () -> {
-          var requester = new CheckedBase<Project>(Specifications.authSpec(user), Endpoint.PROJECTS);
-            projectId.set(requester.create(project).getId());
-        });
-
-
-
-        var buildType = generate(BuildType.class);
-        buildType.setProject(Project.builder().id(projectId.get()).locator(null).build());
-
-        var requester = new CheckedBase<BuildType>(Specifications.authSpec(user), BUILD_TYPES);
-        AtomicReference<String> buildTypeId = new AtomicReference<>("");
-
-        step("Create buildType for project by user", () -> {
-            buildTypeId.set(requester.create(buildType).getId());
-        });
-
-        step("Check buildType was created successfully with correct data", () ->  {
-            var createdBuildType = requester.read(buildTypeId.get());
-
-            softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not correct");
-        });
+        softy.assertEquals(testData.getBuildType().getName(), createdBuildType.getName(), "Build type name is not correct");
     }
 
 
 
-    @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
-    public void userCreatesBuildTypeTestOptimized() {
+    @Test(description = "User should not be able to create two build types with the same id", groups = {"Negative", "CRUD"})
+    public void userCreatesTwoBuildTypesWithTheSameIdTest() {
+        var buildTypeWithSameId = generate(Arrays.asList(testData.getProject()), BuildType.class, testData.getBuildType().getId());
 
-        // Base implementation
-        /*var user = generate(User.class);
-            var userRequester = new CheckedBase<User>(Specifications.superUserSpec(), USERS);
-            userRequester.create(user);
+        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
 
-        var project = generate(Project.class);
+        var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        var projectRequester = new CheckedBase<Project>(Specifications.authSpec(user), Endpoint.PROJECTS);
-        project = projectRequester.create(project);
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
 
-
-        var buildType = generate(Arrays.asList(project), BuildType.class);
-        var buildTypeRequester = new CheckedBase<BuildType>(Specifications.authSpec(user), BUILD_TYPES);
-        buildTypeRequester.create(buildType);
-
-
-        var createdBuildType = buildTypeRequester.read(buildType.getId());
-
-        softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not created");*/
-
-        var user = generate(User.class);
-        superUserCheckRequests.getRequest(USERS).create(user);
-        var userCheckRequests = new CheckedRequests(Specifications.authSpec(user));
-
-        var project = generate(Project.class);
-        project = userCheckRequests.<Project>getRequest(PROJECTS).create(project);
-
-
-        var buildType = generate(Arrays.asList(project), BuildType.class);
-        userCheckRequests.getRequest(BUILD_TYPES).create(buildType);
-        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(buildType.getId());
-
-        softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not correct");
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+        new UncheckedBase(Specifications.authSpec(testData.getUser()), BUILD_TYPES)
+                .create(buildTypeWithSameId)
+                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
+                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(testData.getBuildType().getId())));
     }
 
 
