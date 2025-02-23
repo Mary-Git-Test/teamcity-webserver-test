@@ -1,11 +1,11 @@
 package com.example.teamcity.api;
 
-import com.example.teamcity.api.enums.Endpoint;
+
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
-import com.example.teamcity.api.models.User;
+
 import com.example.teamcity.api.requests.CheckedRequests;
-import com.example.teamcity.api.requests.checked.CheckedBase;
+
 import com.example.teamcity.api.requests.unchecked.UncheckedBase;
 import com.example.teamcity.api.spec.Specifications;
 import org.apache.http.HttpStatus;
@@ -13,7 +13,6 @@ import org.hamcrest.Matchers;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
@@ -25,6 +24,7 @@ public class BuildTypeTest extends BaseApiTest {
     @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
     public void userCreatesBuildTypeTest() {
         superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+
         var userCheckRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
         userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
