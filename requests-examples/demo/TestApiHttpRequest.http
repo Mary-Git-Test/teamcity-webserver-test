@@ -1,0 +1,7 @@
+###
+### GET request to example server
+GET http://admin:admin@192.168.178.21:8111/app/rest/projects/
+Accept: application/json
+
+GET http://admin:admin@192.168.178.21:8111/app/rest/buildTypes/id:TestProject
+Accept: application/json
